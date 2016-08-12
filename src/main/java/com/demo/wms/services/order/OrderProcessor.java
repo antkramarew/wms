@@ -26,7 +26,6 @@ public class OrderProcessor {
     @Autowired
     private ChunkRepository chunkRepository;
 
-    @Transactional
     public void submitOrder(Order order) throws OrderSubmitException {
         try {
             processLines(order);

@@ -3,6 +3,7 @@ package com.demo.wms.services.order;
 import com.demo.wms.domain.*;
 import com.demo.wms.exeptions.OrderSubmitException;
 import com.demo.wms.repository.ChunkRepository;
+import com.demo.wms.repository.OrderRepository;
 import com.demo.wms.repository.ProductRepository;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,6 +27,9 @@ public class OrderProcessorTest {
     private ChunkRepository chunkRepository;
     @Autowired
     private OrderProcessor orderProcessor;
+
+    @Autowired
+    private OrderRepository orderRepository;
 
     public static final String TEST_PRODUCT = "Test product";
     public static final String SKU = "199/2";
@@ -56,7 +60,8 @@ public class OrderProcessorTest {
         order.addLine(new OrderLine(product, one, 1.1f));
         order.addLine(new OrderLine(product, two, 1.3f));
         orderProcessor.submitOrder(order);
-
+        order = orderRepository.findOne(order.getId());
+        System.out.println(order);
     }
 
     @Test
