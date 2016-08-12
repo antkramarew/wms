@@ -61,12 +61,13 @@ public class OrderProcessor {
     }
 
     private void updateChunk(OrderLine orderLine) throws ChunkOutOfStockException {
-        ChunkItem savedItem = chunkRepository.findOne(new ChunkItemKey(orderLine.getItem().getKey().getId(),
+        ChunkItem itemToUpdate = chunkRepository.findOne(new ChunkItemKey(orderLine.getItem().getKey().getId(),
                 orderLine.getProduct().getId()));
-        if(orderLine.getQuantity() > savedItem.getQuantity() ){
-            throw new ChunkOutOfStockException("Not enough quantity for chunk :" + savedItem.getKey().getId());
+        if(orderLine.getQuantity() > itemToUpdate.getQuantity() ){
+            throw new ChunkOutOfStockException("Not enough quantity for chunk :" + itemToUpdate.getKey().getId());
         }
-        orderLine.getItem().setQuantity(savedItem.getQuantity() - orderLine.getQuantity());
+        itemToUpdate.setQuantity(itemToUpdate.getQuantity() - orderLine.getQuantity());
+        chunkRepository.save(itemToUpdate);
     }
 
 
