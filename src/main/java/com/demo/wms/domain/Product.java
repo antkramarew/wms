@@ -1,9 +1,6 @@
 package com.demo.wms.domain;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -18,13 +15,15 @@ public class Product {
     private Long id;
     private String sku;
     private String name;
+    private float width;
     private int price;
     private int tradePrice;
 
     public Product() {
     }
 
-    @OneToMany
+    @OneToMany(fetch = FetchType.EAGER)
+    @JoinColumn(name = "productId" ,referencedColumnName = "id")
     private List<ChunkItem> chunks = new LinkedList<>();
 
 
@@ -82,5 +81,25 @@ public class Product {
 
     public void setChunks(List<ChunkItem> chunks) {
         this.chunks = chunks;
+    }
+
+    public float getWidth() {
+        return width;
+    }
+
+    public void setWidth(float width) {
+        this.width = width;
+    }
+
+    public float getStock() {
+        float stock = 0f;
+        for (ChunkItem chunk : chunks) {
+            stock+= chunk.getQuantity();
+        }
+        return stock;
+    }
+
+    public String toString() {
+        return sku + " " + name + " " + width +"m";
     }
 }

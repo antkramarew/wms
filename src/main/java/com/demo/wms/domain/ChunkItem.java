@@ -7,10 +7,14 @@ import javax.persistence.*;
  */
 
 @Entity
+@IdClass(ChunkItemKey.class)
 public class ChunkItem {
 
-    @EmbeddedId
-    private ChunkItemKey key;
+    @Id
+    private Long id;
+
+    @Id
+    private Long productId;
 
 
     private float quantity;
@@ -19,9 +23,10 @@ public class ChunkItem {
     public ChunkItem() {
     }
 
-    public ChunkItem(ChunkItemKey key) {
-        this.key = key;
+    public ChunkItem(Long productId) {
+        this.productId = productId;
     }
+
 
     public float getQuantity() {
         return quantity;
@@ -39,11 +44,24 @@ public class ChunkItem {
         this.defect = defect;
     }
 
-    public ChunkItemKey getKey() {
-        return key;
+    public Long getId() {
+        return id;
     }
 
-    public void setKey(ChunkItemKey key) {
-        this.key = key;
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getProductId() {
+        return productId;
+    }
+
+    public void setProductId(Long productId) {
+        this.productId = productId;
+    }
+
+    @Override
+    public String toString() {
+        return quantity +"m " + (isDefect() ? "defect: true" : "");
     }
 }

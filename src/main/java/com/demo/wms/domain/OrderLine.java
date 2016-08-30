@@ -20,7 +20,7 @@ public class OrderLine {
 
 
     @PrimaryKeyJoinColumns({
-            @PrimaryKeyJoinColumn(name = "chunkId", referencedColumnName = "chunkId"),
+            @PrimaryKeyJoinColumn(name = "id", referencedColumnName = "id"),
             @PrimaryKeyJoinColumn(name = "productId", referencedColumnName = "productId")
     })
     @ManyToOne
@@ -69,5 +69,9 @@ public class OrderLine {
 
     public void setProduct(Product product) {
         this.product = product;
+    }
+
+    public String toString() {
+        return product.toString() + " " + quantity;
     }
 }

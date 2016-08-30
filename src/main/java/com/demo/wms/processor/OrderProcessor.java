@@ -1,4 +1,4 @@
-package com.demo.wms.services.order;
+package com.demo.wms.processor;
 
 import com.demo.wms.domain.ChunkItem;
 import com.demo.wms.domain.ChunkItemKey;
@@ -9,9 +9,14 @@ import com.demo.wms.exeptions.OrderSubmitException;
 import com.demo.wms.repository.ChunkRepository;
 import com.demo.wms.repository.OrderRepository;
 import com.demo.wms.repository.ProductRepository;
+import com.demo.wms.services.OrderService;
+import com.demo.wms.services.ProductService;
+import com.demo.wms.util.CurrentUser;
 import com.vaadin.spring.annotation.SpringComponent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Date;
 
 /**
  * Created by anton_kramarev on 8/12/2016.
@@ -20,31 +25,26 @@ import org.springframework.transaction.annotation.Transactional;
 public class OrderProcessor {
 
     @Autowired
-    private OrderRepository orderRepository;
+    private OrderService orderService;
     @Autowired
-    private ProductRepository productRepository;
-    @Autowired
-    private ChunkRepository chunkRepository;
+    private ProductService productService;
 
     public void submitOrder(Order order) throws OrderSubmitException {
         try {
+            order.setSubmittedDate(new Date());
+            order.setManager(CurrentUser.get());
             processLines(order);
         } catch (ChunkOutOfStockException ex) {
             throw new OrderSubmitException(ex);
         }
-        persistOrder(order, Order.Status.COMPLETED);
+        orderService.saveOrderWithStatus(order, Order.Status.COMPLETED);
 
     }
     @Transactional
     public void cancelOrder(Long orderId) {
-        Order canceledOrder = orderRepository.findOne(orderId);
+        Order canceledOrder = orderService.findOrder(orderId);
         canceledOrder.getLines().forEach(this::cancelOrderLine);
-        persistOrder(canceledOrder, Order.Status.CANCELED);
-    }
-
-    private void persistOrder(Order order, Order.Status status) {
-        order.setStatus(status);
-        orderRepository.save(order);
+        orderService.saveOrderWithStatus(canceledOrder, Order.Status.CANCELED);
     }
 
     private void cancelOrderLine(OrderLine orderLine) {
@@ -60,13 +60,17 @@ public class OrderProcessor {
     }
 
     private void updateChunk(OrderLine orderLine) throws ChunkOutOfStockException {
-        ChunkItem itemToUpdate = chunkRepository.findOne(new ChunkItemKey(orderLine.getItem().getKey().getId(),
-                orderLine.getProduct().getId()));
+        ChunkItem itemToUpdate = productService.findChunk(orderLine.getItem().getId(), orderLine.getProduct().getId());
         if(orderLine.getQuantity() > itemToUpdate.getQuantity() ){
-            throw new ChunkOutOfStockException("Not enough quantity for chunk :" + itemToUpdate.getKey().getId());
+            throw new ChunkOutOfStockException("Not enough quantity for chunk :" + itemToUpdate.getId());
         }
         itemToUpdate.setQuantity(itemToUpdate.getQuantity() - orderLine.getQuantity());
-        chunkRepository.save(itemToUpdate);
+        if(itemToUpdate.getQuantity()<=0){
+            productService.deleteChunk(itemToUpdate);
+        }
+        else {
+            productService.saveChunk(itemToUpdate);
+        }
     }
 
 

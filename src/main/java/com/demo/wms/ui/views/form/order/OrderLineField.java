@@ -46,13 +46,17 @@ public class OrderLineField extends CustomField<List> {
         LineItemForm lineItemForm = new LineItemForm();
         rootLayout.addComponents(lineItemForm, orderLineTable);
         rootLayout.setWidth("100%");
-        orderLineTable.setHeight(400, Unit.PIXELS);
+        orderLineTable.setPageLength(10);
         rootLayout.setSpacing(spacing);
 
         container = new BeanItemContainer<>(OrderLine.class, Lists.newArrayList());
-        container.removeContainerProperty("id");
-        orderLineTable.setContainerDataSource(container);
+        setOrderTableContainer();
         return rootLayout;
+    }
+
+    private void setOrderTableContainer() {
+        orderLineTable.setContainerDataSource(container);
+        orderLineTable.setVisibleColumns("product", "item", "quantity");
     }
 
 
@@ -61,30 +65,16 @@ public class OrderLineField extends CustomField<List> {
         // We override set internal value to get the internal value of the field to show in the Grid.
         if (orderLineTable != null) {
             container = new BeanItemContainer<>(OrderLine.class, (List<OrderLine>) newValue);
-            container.removeContainerProperty("id");
-            orderLineTable.setContainerDataSource(container);
+            setOrderTableContainer();
         }
         super.setInternalValue(newValue);
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     private class LineItemForm extends HorizontalLayout {
 
         @PropertyId("item")
         private ComboBox itemSelect = new ComboBox();
-        MHorizontalLayout itemSelectWrapper = new MHorizontalLayout(itemSelect);
+        //MHorizontalLayout itemSelectWrapper = new MHorizontalLayout(itemSelect);
         /*
                 .withReadOnly(true)
                 .asComboBoxType(ComboBoxConfig.build())
@@ -143,7 +133,7 @@ public class OrderLineField extends CustomField<List> {
 
         private void initLayout() {
             initComboBox();
-            addComponents(productSelect,itemSelectWrapper, quantity, addButton);
+            addComponents(productSelect,itemSelect, quantity, addButton);
             quantity.setRequired(true);
             addButton.addStyleName(MyTheme.BUTTON_PRIMARY);
             setComponentAlignment(addButton, Alignment.BOTTOM_RIGHT);

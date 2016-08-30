@@ -24,6 +24,7 @@ public class Order {
     private Date submittedDate;
     @OneToOne
     private User manager;
+
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<OrderLine> lines = new LinkedList<>();
 
