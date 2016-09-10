@@ -2,6 +2,7 @@ package com.demo.wms.ui.views.form;
 
 import com.demo.wms.domain.User;
 import com.demo.wms.services.UserService;
+import com.demo.wms.util.Caption;
 import com.vaadin.data.Validator;
 import com.vaadin.data.fieldgroup.PropertyId;
 import com.vaadin.event.ShortcutAction;
@@ -13,6 +14,7 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.themes.ValoTheme;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.spring.i18n.I18N;
+import org.vaadin.viritin.MBeanFieldGroup;
 import org.vaadin.viritin.button.MButton;
 import org.vaadin.viritin.fields.MPasswordField;
 import org.vaadin.viritin.fields.MTextField;
@@ -22,23 +24,19 @@ import org.vaadin.viritin.layouts.MFormLayout;
 import org.vaadin.viritin.layouts.MVerticalLayout;
 
 import javax.annotation.PostConstruct;
+import java.util.Map;
 
 /**
  * Created by toxa on 8/26/2016.
  */
-@org.springframework.stereotype.Component
-@ViewScope
 public class UserForm extends AbstractForm<User> {
-
-
-    @Autowired
-    private I18N messages;
 
     @PropertyId("login")
     private MTextField login = new MTextField()
             .withRequired(true);
     @PropertyId("password")
-    private MPasswordField password = new MPasswordField().withRequired(true);
+    private MPasswordField password = new MPasswordField()
+            .withRequired(true);
     @PropertyId("role")
     private ComboBox role = new ComboBox();
 
@@ -57,19 +55,15 @@ public class UserForm extends AbstractForm<User> {
         setResetButton(cancel);
     }
 
-
-    @PostConstruct
-    public void init() {
-        setCaptions();
+    public UserForm withCaptions(Map<Caption,String> captions) {
+        login.setCaption(captions.get(Caption.LOGIN));
+        password.setCaption(captions.get(Caption.PASSWORD));
+        role.setCaption(captions.get(Caption.ROLE));
+        save.setCaption(captions.get(Caption.SAVE));
+        cancel.setCaption(captions.get(Caption.CANCEL));
+        return this;
     }
 
-    private void setCaptions() {
-        login.setCaption(messages.get("common.login"));
-        password.setCaption(messages.get("common.password"));
-        role.setCaption(messages.get("common.role"));
-        save.setCaption(messages.get("common.save"));
-        cancel.setCaption(messages.get("common.cancel"));
-    }
 
     @Override
     protected Component createContent() {
@@ -100,6 +94,11 @@ public class UserForm extends AbstractForm<User> {
 
     public UserForm withTitle(String title) {
         setModalWindowTitle(title);
+        return this;
+    }
+
+    public UserForm withValidators(Map<Caption, Validator> validators) {
+        login.addValidator(validators.get(Caption.LOGIN));
         return this;
     }
 

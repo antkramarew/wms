@@ -45,6 +45,7 @@ public class LoginBox extends VerticalLayout {
         FormLayout loginForm = new FormLayout();
         username = new TextField("Username");
         password = new PasswordField("Password");
+        CapsLockWarning.warnFor(password);
         loginForm.addComponents(username, password);
         addComponent(loginForm);
 

@@ -23,6 +23,7 @@ import org.vaadin.viritin.button.ConfirmButton;
 import org.vaadin.viritin.button.MButton;
 import org.vaadin.viritin.fields.MTable;
 import org.vaadin.viritin.fields.MTextField;
+import org.vaadin.viritin.form.AbstractForm;
 import org.vaadin.viritin.layouts.MCssLayout;
 import org.vaadin.viritin.layouts.MHorizontalLayout;
 import org.vaadin.viritin.layouts.MVerticalLayout;
@@ -59,9 +60,9 @@ public class ProductView extends VerticalSplitPanel implements View {
     public void init() {
         productPanel = new ProductPanel();
         chunkPanel = new ChunkPanel();
-        productForm.setChangeHandler(() -> {
-            productPanel.listProducts(null);
-        });
+        productForm.setSavedHandler(this::onSave);
+        productForm.setResetHandler(this::onCancel);
+
         chunkForm.setChangeHandler(() -> {
             chunkPanel.show(productPanel.getSelectedProduct());
             productPanel.listProducts(null);
@@ -73,8 +74,16 @@ public class ProductView extends VerticalSplitPanel implements View {
         //setSplitPosition(70, Unit.PERCENTAGE);
     }
 
+    private void onCancel(Product product) {
+        productForm.closePopup();
+    }
 
 
+    private void onSave(Product product) {
+        productService.save(product);
+        productForm.closePopup();
+        productPanel.listProducts(null);
+    }
 
     @Override
     public void enter(ViewChangeListener.ViewChangeEvent event) {
